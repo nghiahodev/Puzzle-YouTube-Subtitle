@@ -1,9 +1,9 @@
 import { useRoutes } from 'react-router-dom'
-import baseRoutes from './features/base/baseRoutes'
+import homeRoutes from './features/home/homeRoutes'
 
 const AppRoutes = () => {
   // Aggregate the route list from different features
-  return useRoutes([...baseRoutes])
+  return useRoutes([...homeRoutes])
 }
 
 export default AppRoutes
