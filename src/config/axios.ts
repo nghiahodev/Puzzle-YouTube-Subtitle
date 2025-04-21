@@ -26,7 +26,7 @@ const createAxiosInstance = (isPrivate = false) => {
       if (isPrivate && error.response?.status === 401) {
         // Handle private
       }
-      return Promise.reject(error.response)
+      return Promise.reject(error.response.data)
     },
   )
 

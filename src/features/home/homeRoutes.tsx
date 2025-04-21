@@ -1,7 +1,7 @@
 import { RouteObject } from 'react-router-dom'
 import MainLayout from '~/layouts/MainLayout'
 import AdminHomePage from './pages/AdminHomePage'
-import RequiredAuth from '~/components/RequiredAuth'
+import RequiredAuth from '~/common/components/RequiredAuth'
 import HomePage from './pages/HomePage'
 
 const homeRoutes: RouteObject[] = [

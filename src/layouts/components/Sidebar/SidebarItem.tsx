@@ -19,12 +19,12 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ icon, text, path }) => {
 
   const isMatch = location.pathname === path.split('?')[0]
 
-  const handleClick = () => {
+  const handleGoPath = () => {
     if (!isMatch) navigate(path)
   }
 
   return (
-    <ListItem disablePadding sx={{ display: 'block' }} onClick={handleClick}>
+    <ListItem disablePadding sx={{ display: 'block' }} onClick={handleGoPath}>
       <ListItemButton>
         <ListItemIcon
           sx={{
