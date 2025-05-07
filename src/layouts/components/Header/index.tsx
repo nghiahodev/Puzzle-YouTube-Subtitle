@@ -15,15 +15,14 @@ import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import myToast from '~/config/toast'
-import { logout } from '~/features/auth/slices/userSlice'
+import { logout } from '~/features/auth/slices/authSlice'
 import { toggleSidebar } from '~/layouts/slices/sidebarSlice'
 import { RootState } from '~/redux/store'
 
 const Header = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
-  const { user } = useSelector((state: RootState) => state.user)
-  console.log(user)
+  const { user } = useSelector((state: RootState) => state.auth)
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const open = Boolean(anchorEl)
@@ -46,6 +45,7 @@ const Header = () => {
 
   const handleLogout = () => {
     handleCloseMenu()
+    navigate('/')
     dispatch(logout())
     myToast.success('Đăng xuất thành công!')
   }
@@ -83,7 +83,7 @@ const Header = () => {
                 fontWeight: 'bold',
               }}
             >
-              TYS
+              Puzzle
             </Typography>
           </Box>
         </Box>
@@ -91,7 +91,7 @@ const Header = () => {
           {user ? (
             <>
               <Typography variant='body1'>
-                Welcome,{' '}
+                Xin chào,{' '}
                 <Typography
                   color='primary'
                   component='span'

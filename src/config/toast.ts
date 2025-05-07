@@ -12,6 +12,11 @@ const defaultToastConfig: ToastOptions = {
   hideProgressBar: true,
   closeButton: true,
   closeOnClick: true,
+  style: {
+    fontSize: '14px',
+    minWidth: '400px',
+    maxWidth: '600px',
+  },
 }
 
 const info = (message: ToastContent) => {

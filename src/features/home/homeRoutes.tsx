@@ -6,12 +6,11 @@ import HomePage from './pages/HomePage'
 
 const homeRoutes: RouteObject[] = [
   {
-    path: 'admin',
     element: <RequiredAuth role='admin' />,
     children: [
       {
         element: <MainLayout />,
-        children: [{ path: '', element: <AdminHomePage /> }],
+        children: [{ path: '/admin', element: <AdminHomePage /> }],
       },
     ],
   },

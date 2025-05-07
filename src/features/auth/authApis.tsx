@@ -1,15 +1,24 @@
 import { publicApi } from '~/config/axios'
-import { GoogleLogin, LoginForm, Signup } from './authTypes'
+import {
+  GoogleOauthBody,
+  LoginBody,
+  LoginResponse,
+  RegisterBody,
+} from './authTypes'
 
 const authApi = {
-  googleLogin(body: GoogleLogin) {
-    return publicApi.post('/auth/google-login', body)
+  googleOauth(body: GoogleOauthBody): Promise<LoginResponse> {
+    return publicApi.post('/auth/oauth/google', body, {
+      withCredentials: true,
+    })
   },
-  signup(body: Signup) {
-    return publicApi.post('/auth/signup', body)
+  register(body: RegisterBody) {
+    return publicApi.post('/auth/register', body)
   },
-  login(body: LoginForm) {
-    return publicApi.post('/auth/login', body)
+  login(body: LoginBody): Promise<LoginResponse> {
+    return publicApi.post('/auth/login', body, {
+      withCredentials: true,
+    })
   },
 }
 

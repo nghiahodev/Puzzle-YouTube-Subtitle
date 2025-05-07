@@ -37,11 +37,6 @@ const RHFTextField = <T extends FieldValues>({
           size='small'
           margin='normal'
           spellCheck={false}
-          sx={{
-            '& input::placeholder': {
-              fontSize: '0.875rem', // hoặc '14px' tùy ý
-            },
-          }}
           {...props}
         />
       )}

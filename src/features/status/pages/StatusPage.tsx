@@ -1,17 +1,30 @@
 import { Typography, Container, Button } from '@mui/material'
+import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
+import { RootState } from '~/redux/store'
 
-const ForbiddenPage = () => {
+interface StatusPageProps {
+  code: 403 | 404
+  message: string
+  description: string
+}
+
+const StatusPage = ({ code, message, description }: StatusPageProps) => {
   const navigate = useNavigate()
+  const { user } = useSelector((state: RootState) => state.auth)
 
-  const handleGoHome = () => navigate('/')
+  const handleGoHome = () => {
+    if (user?.role === 'admin') navigate('/admin')
+    else navigate('/')
+  }
+
   return (
     <Container maxWidth='sm' sx={{ textAlign: 'center', mt: 10 }}>
       <Typography variant='h2' color='error' fontWeight='bold' gutterBottom>
-        403 - Forbidden
+        {code} - {message}
       </Typography>
       <Typography variant='h6' gutterBottom>
-        Bạn không có quyền truy cập trang này.
+        {description}
       </Typography>
       <Button
         variant='contained'
@@ -25,4 +38,4 @@ const ForbiddenPage = () => {
   )
 }
 
-export default ForbiddenPage
+export default StatusPage

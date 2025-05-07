@@ -20,17 +20,25 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ icon, text, path }) => {
   const isMatch = location.pathname === path.split('?')[0]
 
   const handleGoPath = () => {
-    if (!isMatch) navigate(path)
+    if (!isMatch) {
+      navigate(path)
+    }
   }
 
   return (
-    <ListItem disablePadding sx={{ display: 'block' }} onClick={handleGoPath}>
+    <ListItem
+      disablePadding
+      sx={{
+        display: 'block',
+        bgcolor: isMatch ? (theme) => theme.palette.action.hover : '',
+      }}
+      onClick={handleGoPath}
+    >
       <ListItemButton>
         <ListItemIcon
           sx={{
             minWidth: 0,
             mr: 1,
-            color: isMatch ? 'primary.main' : '',
           }}
         >
           {cloneElement(icon)}
@@ -40,8 +48,6 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ icon, text, path }) => {
           sx={{
             '& .MuiTypography-root': {
               fontSize: 14,
-              color: isMatch ? 'primary.main' : '',
-              fontWeight: isMatch ? 'bold' : '',
             },
           }}
         />

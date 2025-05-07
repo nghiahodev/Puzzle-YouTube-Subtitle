@@ -16,9 +16,9 @@ import {
   Visibility,
 } from '@mui/icons-material'
 import { useState } from 'react'
-import { Signup } from '../authTypes'
 import authApi from '../authApis'
 import myToast from '~/config/toast'
+import { RegisterBody } from '../authTypes'
 
 const SignupPage = () => {
   const navigate = useNavigate()
@@ -43,14 +43,14 @@ const SignupPage = () => {
 
   const handleGoLogin = () => navigate('/login')
 
-  const onSubmit = async (data: Signup) => {
+  const onSubmit = async (body: RegisterBody) => {
     const id = myToast.loading()
     try {
-      await authApi.signup(data)
+      await authApi.register(body)
       myToast.update(id, 'Đăng ký thành công!', 'success')
     } catch (error: any) {
       console.log(error)
-      myToast.update(id, error?.message, 'error')
+      myToast.update(id, error?.data?.message, 'error')
     }
   }
 
@@ -60,7 +60,7 @@ const SignupPage = () => {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        minHeight: `calc(100vh - ${theme.app.headerHeight}px)`,
+        minHeight: `calc(100vh - ${theme.app.headerHeight})`,
       })}
     >
       <Paper
@@ -77,7 +77,7 @@ const SignupPage = () => {
             control={control}
             name='name'
             rules={{
-              required: 'Không thể thiếu tên người dùng',
+              required: 'Không để trống trường này',
             }}
             placeholder='Tên hoặc biệt danh'
             slotProps={{
@@ -98,7 +98,7 @@ const SignupPage = () => {
             control={control}
             name='username'
             rules={{
-              required: 'Không thể thiếu tên đăng nhập!',
+              required: 'Không để trống trường này',
             }}
             placeholder='Tên đăng nhập'
             slotProps={{
@@ -119,7 +119,7 @@ const SignupPage = () => {
             control={control}
             name='password'
             rules={{
-              required: 'Không thể thiếu mật khẩu!',
+              required: 'Không để trống trường này',
             }}
             placeholder='Mật khẩu'
             type={showPassword ? 'text' : 'password'}

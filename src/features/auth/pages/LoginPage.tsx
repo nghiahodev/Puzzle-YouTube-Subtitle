@@ -9,14 +9,14 @@ import {
 import { CredentialResponse, GoogleLogin } from '@react-oauth/google'
 import authApi from '../authApis'
 import { useDispatch } from 'react-redux'
-import { login } from '../slices/userSlice'
+import { login } from '../slices/authSlice'
 import { useNavigate } from 'react-router-dom'
 import myToast from '~/config/toast'
 import { useForm } from 'react-hook-form'
 import RHFTextField from '~/common/components/RHFTextField'
 import { Lock, PersonOutline, Visibility } from '@mui/icons-material'
 import { useState } from 'react'
-import { LoginForm } from '../authTypes'
+import { LoginBody } from '../authTypes'
 
 const LoginPage = () => {
   const dispatch = useDispatch()
@@ -41,17 +41,15 @@ const LoginPage = () => {
 
   const handleGoSignup = () => navigate('/signup')
 
-  const onSubmit = async (data: LoginForm) => {
+  const onSubmit = async (body: LoginBody) => {
     const id = myToast.loading()
     try {
-      const result = await authApi.login(data)
-      const { user, token, expiresAt } = result.data
-      dispatch(login({ user, token, expiresAt }))
-      navigate('/')
+      const { user, token } = await authApi.login(body)
+      dispatch(login({ user, token }))
       myToast.update(id, 'Đăng nhập thành công', 'success')
     } catch (error: any) {
       console.log(error)
-      myToast.update(id, error?.message, 'error')
+      myToast.update(id, error?.data?.message, 'error')
     }
   }
 
@@ -62,15 +60,11 @@ const LoginPage = () => {
       if (!credential) {
         throw new Error('Không thể xác thực với Google. Vui lòng thử lại sau')
       }
-      const result = await authApi.googleLogin({ credential })
-      const { user, token, expiresAt } = result.data
-
-      dispatch(login({ user, token, expiresAt }))
-      if (user.role === 'admin') navigate('/admin')
-      else navigate('/')
+      const { user, token } = await authApi.googleOauth({ credential })
+      dispatch(login({ user, token }))
       myToast.update(id, 'Đăng nhập thành công', 'success')
     } catch (error: any) {
-      myToast.update(id, error?.message, 'error')
+      myToast.update(id, error?.data?.message, 'error')
     }
   }
 
@@ -80,7 +74,7 @@ const LoginPage = () => {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        minHeight: `calc(100vh - ${theme.app.headerHeight}px)`,
+        height: `calc(100vh - ${theme.app.headerHeight})`,
       })}
     >
       <Paper
@@ -97,7 +91,7 @@ const LoginPage = () => {
             control={control}
             name='username'
             rules={{
-              required: 'Không thể thiếu tên đăng nhập!',
+              required: 'Không để trống trường này',
             }}
             placeholder='Tên đăng nhập'
             slotProps={{
@@ -118,7 +112,7 @@ const LoginPage = () => {
             control={control}
             name='password'
             rules={{
-              required: 'Không thể thiếu mật khẩu!',
+              required: 'Không để trống trường này',
             }}
             placeholder='Mật khẩu'
             type={showPassword ? 'text' : 'password'}

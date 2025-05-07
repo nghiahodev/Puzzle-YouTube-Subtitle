@@ -1,14 +1,26 @@
-export interface Signup {
+export interface RegisterBody {
   name: string
   username: string
   password: string
 }
 
-export interface GoogleLogin {
+export interface GoogleOauthBody {
   credential: string
 }
 
-export interface LoginForm {
+export interface LoginBody {
   username: string
   password: string
+}
+
+export interface User {
+  id: string
+  name: string
+  picture?: string
+  role: 'admin' | 'user'
+}
+
+export interface LoginResponse {
+  user: User
+  token: string
 }
