@@ -1,3 +1,5 @@
+import { JSONContent } from '@tiptap/react'
+
 export interface AddVideoBody {
   youtubeUrl: string
 }
@@ -7,9 +9,10 @@ export interface GetVideoParams {
 export interface PlayVideoProps {
   id: string
   segments: Segment[]
+  playSegmentIndex?: number
+  seekTo?: { start: number; end: number } | null
   onChange: (index: number) => void
-  seekTo?: number | null
-  playSegmentIndex: number | null
+  onLoading: (isLoading: boolean) => void
 }
 
 export interface Segment {
@@ -18,6 +21,7 @@ export interface Segment {
   end: number
   text: string
   translate: string
+  note?: string
 }
 
 export interface Video {
@@ -27,17 +31,33 @@ export interface Video {
   title: string
   duration: number
   thumbnail: string
+  summary: string
   segments: Segment[]
 }
 
 export interface SegmentItemProps {
   index: number
-  segment: {
-    start: number
-    end: number
-    text: string
-    translate: string
-  }
+  segment: Segment
   isActive: boolean
   onClick?: (time: number) => void
+}
+
+export interface EditSegmentFormBody {
+  text: string
+  translate: string
+  start: number
+  end: number
+  note?: JSONContent
+}
+export interface EditInfoFormBody {
+  summary: JSONContent
+}
+export interface EditInfoFormProps {
+  video: Video
+}
+
+export interface EditSegmentFormProps {
+  segments: Segment[]
+  index: number
+  onSeekTo: (range: { start: number; end: number }) => void
 }

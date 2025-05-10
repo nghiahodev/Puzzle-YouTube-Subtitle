@@ -34,9 +34,15 @@ const RHFTextField = <T extends FieldValues>({
           error={!!error}
           helperText={error?.message}
           fullWidth
-          size='small'
           margin='normal'
           spellCheck={false}
+          slotProps={{
+            inputLabel: {
+              sx: {
+                fontWeight: 'bold',
+              },
+            },
+          }}
           {...props}
         />
       )}

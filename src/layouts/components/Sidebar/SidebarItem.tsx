@@ -17,7 +17,11 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ icon, text, path }) => {
   const navigate = useNavigate()
   const location = useLocation()
 
-  const isMatch = location.pathname === path.split('?')[0]
+  const segments = location.pathname.split('/').filter(Boolean)
+
+  const limitedPath = '/' + segments.slice(0, 3).join('/')
+
+  const isMatch = limitedPath === path.split('?')[0]
 
   const handleGoPath = () => {
     if (!isMatch) {

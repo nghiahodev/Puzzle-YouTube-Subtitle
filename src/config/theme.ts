@@ -3,12 +3,12 @@ import { createTheme } from '@mui/material/styles'
 declare module '@mui/material/styles' {
   interface Theme {
     app: {
-      headerHeight: number
+      headerHeight: string
     }
   }
   interface ThemeOptions {
     app?: {
-      headerHeight?: number
+      headerHeight?: string
     }
   }
 }
@@ -16,7 +16,7 @@ declare module '@mui/material/styles' {
 const getTheme = (mode = 'light') =>
   createTheme({
     app: {
-      headerHeight: 56,
+      headerHeight: '48px',
     },
     // typography: customize text styles, sizes, and weight
     typography: {

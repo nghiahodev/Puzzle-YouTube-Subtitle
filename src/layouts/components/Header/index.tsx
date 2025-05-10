@@ -83,7 +83,7 @@ const Header = () => {
                 fontWeight: 'bold',
               }}
             >
-              Puzzle
+              PuzzleYS
             </Typography>
           </Box>
         </Box>

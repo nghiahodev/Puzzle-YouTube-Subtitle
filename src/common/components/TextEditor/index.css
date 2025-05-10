@@ -1,0 +1,47 @@
+.text-editor {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #fff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.text-editor .ProseMirror p,
+.text-editor .ProseMirror li,
+.text-editor .ProseMirror blockquote {
+  text-align: justify;
+}
+
+.text-editor .ProseMirror {
+  outline: none;
+  min-height: 150px;
+}
+
+.text-editor.focused {
+  border: 1px solid #2196f3;
+}
+
+p.is-editor-empty:first-child::before {
+  color: var(--gray-4);
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+.text-editor__spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid #ccc;
+  border-top-color: #2196f3;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  margin-right: 6px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
