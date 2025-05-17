@@ -8,6 +8,7 @@ import {
 } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
 import RHFTextField from '~/common/components/RHFTextField'
 import {
   InfoOutlined,
@@ -18,9 +19,11 @@ import {
 import { useState } from 'react'
 import authApi from '../authApis'
 import myToast from '~/config/toast'
-import { RegisterBody } from '../authTypes'
+import authSchemas, { RegisterBody, RegisterInput } from '../authSchemas'
+import { getError } from '~/common/utils/error'
+import authErrors from '../authErrors'
 
-const SignupPage = () => {
+const RegisterPage = () => {
   const navigate = useNavigate()
 
   const [showPassword, setShowPassword] = useState(false)
@@ -30,6 +33,7 @@ const SignupPage = () => {
     handleSubmit,
     formState: { errors },
   } = useForm({
+    resolver: zodResolver(authSchemas.register),
     defaultValues: {
       name: '',
       username: '',
@@ -43,14 +47,14 @@ const SignupPage = () => {
 
   const handleGoLogin = () => navigate('/login')
 
-  const onSubmit = async (body: RegisterBody) => {
+  const onSubmit = async (body: RegisterInput) => {
     const id = myToast.loading()
     try {
       await authApi.register(body)
       myToast.update(id, 'Đăng ký thành công!', 'success')
     } catch (error: any) {
       console.log(error)
-      myToast.update(id, error?.data?.message, 'error')
+      myToast.update(id, getError(error?.code, authErrors), 'error')
     }
   }
 
@@ -76,9 +80,6 @@ const SignupPage = () => {
           <RHFTextField
             control={control}
             name='name'
-            rules={{
-              required: 'Không để trống trường này',
-            }}
             placeholder='Tên hoặc biệt danh'
             slotProps={{
               input: {
@@ -97,9 +98,6 @@ const SignupPage = () => {
           <RHFTextField
             control={control}
             name='username'
-            rules={{
-              required: 'Không để trống trường này',
-            }}
             placeholder='Tên đăng nhập'
             slotProps={{
               input: {
@@ -118,9 +116,6 @@ const SignupPage = () => {
           <RHFTextField
             control={control}
             name='password'
-            rules={{
-              required: 'Không để trống trường này',
-            }}
             placeholder='Mật khẩu'
             type={showPassword ? 'text' : 'password'}
             slotProps={{
@@ -170,4 +165,4 @@ const SignupPage = () => {
   )
 }
 
-export default SignupPage
+export default RegisterPage

@@ -1,12 +1,14 @@
 import { Box, Typography } from '@mui/material'
-import { SegmentItemProps } from '../videoTypes'
+import { SegmentType } from '~/common/types'
 
-const SegmentItem = ({
-  index,
-  segment,
-  isActive,
-  onClick,
-}: SegmentItemProps) => {
+interface SegmentItemProps {
+  index: number
+  segment: SegmentType
+  isActive: boolean
+  onClick?: (time: number) => void
+}
+
+const Segment = ({ index, segment, isActive, onClick }: SegmentItemProps) => {
   const handleOnClick = () => {
     const selection = window.getSelection()
     const isSelecting =
@@ -69,4 +71,4 @@ const SegmentItem = ({
   )
 }
 
-export default SegmentItem
+export default Segment

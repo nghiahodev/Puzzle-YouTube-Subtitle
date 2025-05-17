@@ -1,19 +1,34 @@
 import { Box, Skeleton } from '@mui/material'
 import ReactPlayer from 'react-player/youtube'
-import { PlayVideoProps } from '../videoTypes'
 import { useEffect, useRef, useState } from 'react'
 import { OnProgressProps } from 'react-player/base'
+import { SegmentType } from '~/common/types'
+import YouTubePlayer from 'react-player/youtube'
+
+const DELAY_FAST = 0
+const DELAY_SLOW = 0.5
+const RESET_MS = 10000
+
+interface PlayVideoProps {
+  id: string
+  segments: SegmentType[]
+  seekTo?: { start: number; end: number } | null
+  onChange: (index: number) => void
+  onLoading: (isLoading: boolean) => void
+}
 
 const PlayVideo = ({
   id,
   segments,
-  playSegmentIndex,
   seekTo,
   onChange,
   onLoading,
 }: PlayVideoProps) => {
   const playRef = useRef<ReactPlayer | null>(null)
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const timeoutPlayRef = useRef<NodeJS.Timeout | null>(null)
+  const intervalPlayRef = useRef<NodeJS.Timeout | null>(null)
+  const delayRef = useRef(DELAY_SLOW)
+  const timeoutDelayRef = useRef<NodeJS.Timeout | null>(null)
 
   const [playing, setPlaying] = useState<boolean | null>(null)
   const [loading, setLoading] = useState(true)
@@ -34,56 +49,72 @@ const PlayVideo = ({
     if (currentIndex !== -1) onChange(currentIndex)
   }
 
-  // useEffect(() => {
-  //   if (playSegmentIndex > -1) {
-  //     const segment = segments[playSegmentIndex]
-  //     const duration = (segment.end - segment.start) * 1000
-  //     const bufferDelay = playing === null ? 1000 : 700
-  //     const currentVolume = playRef.current?.getInternalPlayer().getVolume?.()
+  const getCurrentTime = (
+    playRef: React.RefObject<YouTubePlayer | null>,
+  ): number => {
+    if (!playRef) return 0
+    const internal = playRef.current?.getInternalPlayer()
+    if (!internal) return 0
 
-  //     // Clear previous timeout
-  //     if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    try {
+      if (typeof internal.getCurrentTime === 'function') {
+        return internal.getCurrentTime() // YouTube, Vimeo
+      } else if (typeof internal.currentTime === 'number') {
+        return internal.currentTime // HTML5 video
+      }
+    } catch (e) {
+      console.warn('getCurrentTime failed:', e)
+    }
 
-  //     // Play the video from the beginning to load the audio
-  //     playRef.current?.seekTo(0, 'seconds')
-  //     playRef.current?.getInternalPlayer()?.setVolume?.(1)
-  //     setPlaying(true)
+    return 0
+  }
 
-  //     timeoutRef.current = setTimeout(() => {
-  //       playRef.current?.getInternalPlayer()?.setVolume?.(currentVolume)
-  //       playRef.current?.seekTo(segment.start, 'seconds')
-  //       timeoutRef.current = setTimeout(() => {
-  //         setPlaying(false)
-  //         onChange(playSegmentIndex)
-  //       }, duration)
-  //     }, bufferDelay)
-
-  //     return () => {
-  //       if (timeoutRef.current) clearTimeout(timeoutRef.current)
-  //     }
-  //   }
-  // }, [playSegmentIndex])
   useEffect(() => {
     if (seekTo !== undefined && seekTo !== null) {
       const duration = (seekTo.end - seekTo.start) * 1000
-      const bufferDelay = playing === null ? 2000 : 500
 
       // Clear previous timeout
-      if (timeoutRef.current) clearTimeout(timeoutRef.current)
+      if (timeoutPlayRef.current) clearTimeout(timeoutPlayRef.current)
+      if (intervalPlayRef.current) clearInterval(intervalPlayRef.current)
 
       // Play the video from the beginning to load the audio
-      playRef.current?.seekTo(0, 'seconds')
+      playRef.current?.seekTo(seekTo.start, 'seconds')
+
+      const internalPlayer = playRef.current?.getInternalPlayer?.()
+
+      let prevVolume: number | null = null
+      if (internalPlayer?.getVolume && internalPlayer?.setVolume) {
+        prevVolume = internalPlayer.getVolume()
+        internalPlayer.setVolume(1)
+      }
+
       setPlaying(true)
 
-      timeoutRef.current = setTimeout(() => {
-        playRef.current?.seekTo(seekTo.start, 'seconds')
-        timeoutRef.current = setTimeout(() => {
-          setPlaying(false)
-        }, duration)
-      }, bufferDelay)
+      intervalPlayRef.current = setInterval(() => {
+        const currentTime = getCurrentTime(playRef)
+        if (currentTime - seekTo.start > delayRef.current) {
+          playRef.current?.seekTo(seekTo.start, 'seconds')
+
+          if (prevVolume !== null) {
+            internalPlayer?.setVolume?.(prevVolume)
+          }
+          timeoutPlayRef.current = setTimeout(() => {
+            setPlaying(false)
+          }, duration)
+          clearInterval(intervalPlayRef.current!)
+
+          //
+          delayRef.current = DELAY_FAST
+          if (timeoutDelayRef.current) clearTimeout(timeoutDelayRef.current)
+          timeoutDelayRef.current = setTimeout(() => {
+            delayRef.current = DELAY_SLOW
+          }, RESET_MS)
+        }
+      }, 100)
 
       return () => {
-        if (timeoutRef.current) clearTimeout(timeoutRef.current)
+        clearInterval(intervalPlayRef.current!)
+        clearTimeout(timeoutPlayRef.current!)
       }
     }
   }, [seekTo])

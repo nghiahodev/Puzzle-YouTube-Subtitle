@@ -1,10 +1,14 @@
 import { publicApi } from '~/config/axios'
-import {
-  GoogleOauthBody,
-  LoginBody,
-  LoginResponse,
-  RegisterBody,
-} from './authTypes'
+import { LoginBody, RegisterBody } from './authSchemas'
+import { UserType } from '~/common/types'
+
+export interface LoginResponse {
+  user: UserType
+  token: string
+}
+export interface GoogleOauthBody {
+  credential: string
+}
 
 const authApi = {
   googleOauth(body: GoogleOauthBody): Promise<LoginResponse> {

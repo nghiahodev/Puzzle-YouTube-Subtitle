@@ -92,7 +92,7 @@ const createAxiosInstance = (isPrivate = false) => {
           isRefreshing = false
         }
       }
-      return Promise.reject(error?.response || error)
+      return Promise.reject(error?.response?.data || error)
     },
   )
 

@@ -1,7 +1,7 @@
 import { RouteObject } from 'react-router-dom'
 import LoginPage from './pages/LoginPage'
 import MainLayout from '~/layouts/MainLayout'
-import SignupPage from './pages/SignupPage'
+import RegisterPage from './pages/RegisterPage'
 import RequiredGuest from '~/common/components/RequiredGuest'
 
 const authRoutes: RouteObject[] = [
@@ -13,7 +13,7 @@ const authRoutes: RouteObject[] = [
         element: <MainLayout />,
         children: [
           { path: 'login', element: <LoginPage /> },
-          { path: 'signup', element: <SignupPage /> },
+          { path: 'register', element: <RegisterPage /> },
         ],
       },
     ],

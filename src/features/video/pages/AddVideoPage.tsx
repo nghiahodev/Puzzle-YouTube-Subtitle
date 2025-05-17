@@ -1,25 +1,30 @@
 import { Box, Button, FormControl, Stack, Typography } from '@mui/material'
 import { useForm } from 'react-hook-form'
 import RHFTextField from '~/common/components/RHFTextField'
-import { AddVideoBody } from '../videoTypes'
 import videoApi from '../videoApis'
 import myToast from '~/config/toast'
+import { zodResolver } from '@hookform/resolvers/zod'
+import videoSchemas, { AddVideoInput } from '../videoSchemas'
+import { getError } from '~/common/utils/error'
+import videoErrors from '../videoErrors'
 
 const AddVideoPage = () => {
   const { control, handleSubmit } = useForm({
+    resolver: zodResolver(videoSchemas.addVideo),
     defaultValues: {
       youtubeUrl: '',
     },
   })
 
-  const onSubmit = async (body: AddVideoBody) => {
+  const onSubmit = async (input: AddVideoInput) => {
     const id = myToast.loading()
+    const { youtubeId } = videoSchemas.addVideoInfer.parse(input)
     try {
-      await videoApi.addVideo(body)
-      myToast.update(id, 'Thêm mới thành công', 'success')
+      await videoApi.addVideo({ youtubeId })
+      myToast.update(id, 'Thêm video thành công', 'success')
     } catch (error: any) {
       console.log(error)
-      myToast.update(id, error?.data?.message, 'error')
+      myToast.update(id, getError(error?.code, videoErrors), 'error')
     }
   }
 
@@ -28,6 +33,7 @@ const AddVideoPage = () => {
       sx={(theme) => ({
         display: 'flex',
         justifyContent: 'center',
+        pt: 2,
       })}
     >
       <Box sx={{ width: '100%' }}>
@@ -47,15 +53,12 @@ const AddVideoPage = () => {
               label='Đường dẫn đến video trên YouTube'
               name='youtubeUrl'
               control={control}
-              rules={{
-                required: 'Không để trống trường này',
-              }}
             />
 
             <FormControl>
               <Box display='flex' justifyContent='center'>
                 <Button
-                  variant='contained'
+                  variant='outlined'
                   color='primary'
                   type='submit'
                   sx={{

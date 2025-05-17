@@ -1,4 +1,3 @@
-import { JSONContent } from '@tiptap/react'
 import {
   Button,
   FormControl,
@@ -8,18 +7,25 @@ import {
 } from '@mui/material'
 import TextEditor from '~/common/components/TextEditor'
 import { Controller, useForm } from 'react-hook-form'
-import { EditInfoFormBody, EditInfoFormProps } from '../videoTypes'
-import { parseJsonContent } from '~/common/utils/tiptap'
+import { formatDuration } from '../videoUtil'
+import { zodResolver } from '@hookform/resolvers/zod'
+import videoSchemas, { EditInfoInput } from '../videoSchemas'
+import { VideoType } from '~/common/types'
 
-const EditInfoForm = ({ video }: EditInfoFormProps) => {
+interface EditInfoProps {
+  video: VideoType
+}
+
+const EditInfo = ({ video }: EditInfoProps) => {
   const { control, handleSubmit } = useForm({
+    resolver: zodResolver(videoSchemas.editInfo),
     defaultValues: {
-      summary: parseJsonContent(video.summary),
+      summary: video.summary,
     },
   })
 
-  const onSubmit = async (body: EditInfoFormBody) => {
-    console.log(body)
+  const onSubmit = async (input: EditInfoInput) => {
+    console.log(input)
   }
 
   return (
@@ -63,7 +69,7 @@ const EditInfoForm = ({ video }: EditInfoFormProps) => {
       </FormControl>
 
       <FormControl fullWidth margin='normal'>
-        <FormLabel>Thời lượng (giây)</FormLabel>
+        <FormLabel>Thời lượng</FormLabel>
         <Typography
           variant='body1'
           sx={{
@@ -77,23 +83,12 @@ const EditInfoForm = ({ video }: EditInfoFormProps) => {
             },
           }}
         >
-          {video.duration}
+          {formatDuration(video.duration + 1)}
         </Typography>
       </FormControl>
       <Controller
         control={control}
         name='summary'
-        rules={{
-          validate: (value: JSONContent) => {
-            const hasMeaningfulText = value?.content?.some(
-              (node) =>
-                node.type === 'paragraph' &&
-                node.content?.some((n) => n.type === 'text' && n.text?.trim()),
-            )
-
-            return hasMeaningfulText || 'Không để trống trường này'
-          },
-        }}
         render={({ field, fieldState }) => (
           <FormControl fullWidth margin='normal' error={!!fieldState?.error}>
             <FormLabel sx={{ marginBottom: '8px', fontWeight: 500 }}>
@@ -118,11 +113,11 @@ const EditInfoForm = ({ video }: EditInfoFormProps) => {
         }}
       >
         <Button variant='outlined' type='submit'>
-          {`Cập nhật thông tin`}
+          {`Chỉnh sửa thông tin`}
         </Button>
       </FormControl>
     </form>
   )
 }
 
-export default EditInfoForm
+export default EditInfo

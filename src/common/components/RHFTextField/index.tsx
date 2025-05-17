@@ -10,7 +10,7 @@ import {
   TextFieldProps as MuiTextFieldProps,
 } from '@mui/material'
 
-interface TextFieldProps<T extends FieldValues>
+export interface RHFTextFieldProps<T extends FieldValues>
   extends Omit<MuiTextFieldProps, 'name'> {
   name: FieldPath<T>
   control: Control<T>
@@ -22,7 +22,7 @@ const RHFTextField = <T extends FieldValues>({
   control,
   rules,
   ...props
-}: TextFieldProps<T>) => {
+}: RHFTextFieldProps<T>) => {
   return (
     <Controller
       name={name}

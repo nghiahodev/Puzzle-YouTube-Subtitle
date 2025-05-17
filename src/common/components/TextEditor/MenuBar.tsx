@@ -1,3 +1,4 @@
+import './MenuBar.css'
 import {
   FormatBold,
   FormatClear,
@@ -7,9 +8,11 @@ import {
   StrikethroughS,
   Undo,
 } from '@mui/icons-material'
-import './MenuBar.css'
+import { Editor } from '@tiptap/react'
 
-import { MenuBarProps } from './textEditorTypes'
+export interface MenuBarProps {
+  editor: Editor | null
+}
 
 const MenuBar = ({ editor }: MenuBarProps) => {
   if (!editor) {

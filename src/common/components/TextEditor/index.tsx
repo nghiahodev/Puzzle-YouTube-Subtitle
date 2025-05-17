@@ -1,11 +1,16 @@
 import './index.css'
-import { useEditor, EditorContent, Editor } from '@tiptap/react'
+import { useEditor, EditorContent, Editor, JSONContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { useEffect, useMemo, useState } from 'react'
-import { TextEditorProps } from './textEditorTypes'
-import MenuBar from './MenuBar'
 import debounce from 'lodash.debounce'
 import Placeholder from '@tiptap/extension-placeholder'
+import MenuBar from './MenuBar'
+
+export interface TextEditorProps {
+  onChange: (content: JSONContent) => void
+  value?: JSONContent
+  placeholder?: string
+}
 
 const TextEditor = ({ onChange, value, placeholder }: TextEditorProps) => {
   const [isUpdating, setIsUpdating] = useState(false)

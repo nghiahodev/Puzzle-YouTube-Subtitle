@@ -1,18 +1,21 @@
 import { Box, Grid2, Tab, Tabs } from '@mui/material'
 import { useEffect, useRef, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import videoApi from '../videoApis'
 import PlayVideo from '../components/PlayVideo'
-import { Video } from '../videoTypes'
-import SegmentItem from '../components/SegmentItem'
-import EditSegmentForm from '../components/EditSegmentForm'
-import EditInfoForm from '../components/EditInfoForm'
+import EditSegment from '../components/EditSegment'
+import EditInfo from '../components/EditInfo'
+import CustomDialog from '~/common/components/CustomDialog'
+import Segment from '../components/Segment'
+import { VideoType } from '~/common/types'
 
 const EditVideoPage = () => {
+  const navigate = useNavigate()
   const { videoId } = useParams()
   const scrollRef = useRef<HTMLDivElement>(null)
 
-  const [video, setVideo] = useState<Video | null>(null)
+  const [video, setVideo] = useState<VideoType | null>(null)
+  const [loading, setLoading] = useState(true)
   const [currentIndex, setCurrentIndex] = useState(-1)
   const [selectedIndex, setSelectedIndex] = useState(-1)
   const [loadingVideo, setLoadingVideo] = useState(true)
@@ -30,7 +33,10 @@ const EditVideoPage = () => {
   }
   const handleSegmentClick = (index: number) => {
     setSelectedIndex(index)
+    setCurrentIndex(index)
   }
+
+  const handleConfirm = () => navigate('/admin/videos/edit')
 
   useEffect(() => {
     if (!videoId) {
@@ -40,7 +46,9 @@ const EditVideoPage = () => {
       try {
         const video = await videoApi.getVideo({ videoId })
         setVideo(video)
+        setLoading(false)
       } catch (error) {
+        setLoading(false)
         console.log(error)
       }
     })()
@@ -68,7 +76,7 @@ const EditVideoPage = () => {
     }
   }, [selectedIndex])
 
-  return (
+  return video ? (
     <Grid2 container spacing={2} sx={{ top: '48px' }}>
       <Grid2 size={{ xs: 12, md: 6 }}>
         <Box
@@ -94,18 +102,19 @@ const EditVideoPage = () => {
               onChange={(e, newValue) => setTabIndex(newValue)}
             >
               <Tab label='Thông tin video' />
-              <Tab label='Chỉnh sửa phân đoạn' />
+              <Tab label='Chỉnh sửa phụ đề' />
             </Tabs>
-            {video &&
-              (tabIndex === 1 ? (
-                <EditSegmentForm
-                  index={currentIndex}
-                  segments={video.segments}
-                  onSeekTo={setSeekTo}
-                />
-              ) : (
-                <EditInfoForm video={video} />
-              ))}
+            {tabIndex === 1 ? (
+              <EditSegment
+                index={currentIndex}
+                segments={video.segments}
+                duration={video.duration}
+                onSeekTo={setSeekTo}
+                onUpdate={setVideo}
+              />
+            ) : (
+              <EditInfo video={video} />
+            )}
           </Box>
         </Box>
       </Grid2>
@@ -119,44 +128,51 @@ const EditVideoPage = () => {
             py: 1,
           })}
         >
-          {video && (
-            <>
-              <Box sx={{ flexShrink: 0 }}>
-                <PlayVideo
-                  id={video.youtubeId}
-                  segments={video.segments}
-                  onChange={handleSegmentChange}
-                  seekTo={seekTo}
-                  onLoading={handleLoading}
-                />
-              </Box>
-              <Box
-                ref={scrollRef}
-                sx={{
-                  overflowY: 'auto',
-                  flexGrow: 1,
-                  height: '100%',
-                }}
-              >
-                {!loadingVideo && (
-                  <Box>
-                    {video?.segments.map((s, index) => (
-                      <SegmentItem
-                        key={index}
-                        index={index}
-                        segment={s}
-                        isActive={currentIndex === index}
-                        onClick={handleSegmentClick}
-                      />
-                    ))}
-                  </Box>
-                )}
-              </Box>
-            </>
-          )}
+          <>
+            <Box sx={{ flexShrink: 0 }}>
+              <PlayVideo
+                id={video.youtubeId}
+                segments={video.segments}
+                onChange={handleSegmentChange}
+                seekTo={seekTo}
+                onLoading={handleLoading}
+              />
+            </Box>
+            <Box
+              ref={scrollRef}
+              sx={{
+                overflowY: 'auto',
+                flexGrow: 1,
+                height: '100%',
+              }}
+            >
+              {!loadingVideo && (
+                <Box>
+                  {video?.segments.map((s, index) => (
+                    <Segment
+                      key={index}
+                      index={index}
+                      segment={s}
+                      isActive={currentIndex === index}
+                      onClick={handleSegmentClick}
+                    />
+                  ))}
+                </Box>
+              )}
+            </Box>
+          </>
         </Box>
       </Grid2>
     </Grid2>
+  ) : (
+    <>
+      <CustomDialog
+        open={!loading}
+        title='Không tìm thấy video'
+        message='Video bạn đang tìm kiếm không tồn tại hoặc đã bị xoá.'
+        onConfirm={handleConfirm}
+      />
+    </>
   )
 }
 

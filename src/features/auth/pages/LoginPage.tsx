@@ -16,7 +16,10 @@ import { useForm } from 'react-hook-form'
 import RHFTextField from '~/common/components/RHFTextField'
 import { Lock, PersonOutline, Visibility } from '@mui/icons-material'
 import { useState } from 'react'
-import { LoginBody } from '../authTypes'
+import { getError } from '~/common/utils/error'
+import authErrors from '../authErrors'
+import { zodResolver } from '@hookform/resolvers/zod'
+import authSchemas, { LoginInput } from '../authSchemas'
 
 const LoginPage = () => {
   const dispatch = useDispatch()
@@ -29,6 +32,7 @@ const LoginPage = () => {
     handleSubmit,
     formState: { errors },
   } = useForm({
+    resolver: zodResolver(authSchemas.login),
     defaultValues: {
       username: '',
       password: '',
@@ -39,9 +43,9 @@ const LoginPage = () => {
   const handleMouseUp = () => setShowPassword(false)
   const handleMouseLeave = () => setShowPassword(false)
 
-  const handleGoSignup = () => navigate('/signup')
+  const handleGoRegister = () => navigate('/register')
 
-  const onSubmit = async (body: LoginBody) => {
+  const onSubmit = async (body: LoginInput) => {
     const id = myToast.loading()
     try {
       const { user, token } = await authApi.login(body)
@@ -49,22 +53,26 @@ const LoginPage = () => {
       myToast.update(id, 'Đăng nhập thành công', 'success')
     } catch (error: any) {
       console.log(error)
-      myToast.update(id, error?.data?.message, 'error')
+      myToast.update(id, getError(error?.code, authErrors), 'error')
     }
   }
 
   const handleSuccess = async (response: CredentialResponse) => {
-    const id = myToast.loading()
+    const toastId = myToast.loading()
+
+    const credential = response?.credential
+    if (!credential) {
+      myToast.update(toastId, 'Xác thực không hợp lệ', 'error')
+      return
+    }
+
     try {
-      const { credential } = response
-      if (!credential) {
-        throw new Error('Không thể xác thực với Google. Vui lòng thử lại sau')
-      }
       const { user, token } = await authApi.googleOauth({ credential })
       dispatch(login({ user, token }))
-      myToast.update(id, 'Đăng nhập thành công', 'success')
+      myToast.update(toastId, 'Đăng nhập thành công', 'success')
     } catch (error: any) {
-      myToast.update(id, error?.data?.message, 'error')
+      console.error(error)
+      myToast.update(toastId, getError(error?.code, authErrors), 'error')
     }
   }
 
@@ -90,9 +98,6 @@ const LoginPage = () => {
           <RHFTextField
             control={control}
             name='username'
-            rules={{
-              required: 'Không để trống trường này',
-            }}
             placeholder='Tên đăng nhập'
             slotProps={{
               input: {
@@ -111,9 +116,6 @@ const LoginPage = () => {
           <RHFTextField
             control={control}
             name='password'
-            rules={{
-              required: 'Không để trống trường này',
-            }}
             placeholder='Mật khẩu'
             type={showPassword ? 'text' : 'password'}
             slotProps={{
@@ -148,7 +150,7 @@ const LoginPage = () => {
             variant='body2'
             align='right'
             style={{ cursor: 'pointer' }}
-            onClick={handleGoSignup}
+            onClick={handleGoRegister}
           >
             Bạn chưa có tài khoản ?
           </Typography>
